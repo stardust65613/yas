@@ -22,6 +22,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Build Java application
+        run: |
+          cd ${{ matrix.service }}
+          mvn clean package -DskipTests
+
       # 1. Build và Push Image lên GHCR
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
