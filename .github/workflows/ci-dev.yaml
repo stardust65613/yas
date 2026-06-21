@@ -65,16 +65,21 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           
-          # 1. Đưa về nhánh dev sạch sẽ
+          # 1. Hủy bỏ mọi thay đổi cục bộ (xóa sạch rác trên Runner)
+          git reset --hard HEAD
+          
+          # 2. Cập nhật mới nhất từ server
           git fetch origin dev
+          
+          # 3. Chuyển sang nhánh dev và ép buộc nó khớp với server
           git checkout dev
           git reset --hard origin/dev
           
-          # 2. Thực hiện thay đổi của bạn trên file YAML
-          # (Lưu ý: Đảm bảo script của bạn ghi đè chính xác giá trị mới vào file)
-          # Ví dụ: sed -i "s/tag: .*/tag: ${{ github.sha }}/" k8s/env/dev/${{ matrix.service }}-values.yaml
+          # 4. Thực hiện ghi giá trị mới vào file 
+          # (Thay chỗ này bằng lệnh sed hoặc echo của bạn)
+          # Ví dụ: sed -i "s|tag:.*|tag: ${{ github.sha }}|" k8s/env/dev/${{ matrix.service }}-values.yaml
           
-          # 3. Add, Commit và Push (không cần rebase)
+          # 5. Commit và đẩy lên
           git add k8s/env/dev/${{ matrix.service }}-values.yaml
           git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }} [skip ci]"
           git push origin HEAD:dev
