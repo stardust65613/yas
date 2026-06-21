@@ -67,21 +67,25 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           
+          # 1. Đảm bảo workspace sạch sẽ trước khi làm việc
+          git reset --hard HEAD
+          git clean -fd
+          
+          # 2. Fetch và đảm bảo branch dev ở trạng thái mới nhất
           git fetch origin dev
           git checkout dev
           git reset --hard origin/dev
           
-          # Thực hiện thay đổi file
-          # Giả sử bạn dùng lệnh này để update tag:
+          # 3. Thực hiện thay đổi file
           sed -i "s|tag:.*|tag: ${{ github.sha }}|" k8s/env/dev/${{ matrix.service }}-values.yaml
           
-          # Kiểm tra xem file có thay đổi thật không
+          # 4. Kiểm tra và commit
           if git diff --quiet k8s/env/dev/${{ matrix.service }}-values.yaml; then
             echo "Không có thay đổi nào trong file, bỏ qua bước commit."
           else
             git add k8s/env/dev/${{ matrix.service }}-values.yaml
             git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }} [skip ci]"
-            git push origin HEAD:dev
+            git push origin dev  # Đẩy thẳng vào dev
           fi
 
  
