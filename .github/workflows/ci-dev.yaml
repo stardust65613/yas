@@ -26,9 +26,10 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./${{ matrix.service }}
+          file: ./${{ matrix.service }}/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}/my-app:${{ github.sha }}
+          tags: ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ github.sha }}
 
       # 2. Cập nhật tag mới vào file values.yaml
       - name: Update Helm values
