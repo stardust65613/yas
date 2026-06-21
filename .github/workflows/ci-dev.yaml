@@ -33,6 +33,7 @@ jobs:
           cd common-library
           mvn clean install -DskipTests
 
+          cd ..
           cd ${{ matrix.service }}
           mvn clean package -DskipTests
 
