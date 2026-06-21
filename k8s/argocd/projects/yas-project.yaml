@@ -46,15 +46,15 @@ spec:
   destinations:
     # Dev environment — auto-deployed from main branch
     - namespace: dev
-      server: cloud-vm-cluster 
+      name: cloud-vm-cluster 
 
     # Staging environment — auto-deployed from git tags
     - namespace: staging
-      server: cloud-vm-cluster 
+      name: cloud-vm-cluster 
 
     # Production environment — MANUALLY synced (requires human in ArgoCD UI)
     - namespace: production
-      server: cloud-vm-cluster 
+      name: cloud-vm-cluster 
 
   # --------------------------------------------------------------------------
   # CLUSTER RESOURCE WHITELIST — Only allow creating these cluster-scoped
