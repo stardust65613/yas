@@ -65,9 +65,17 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           
-          # Sử dụng biến matrix để trỏ đúng file của service đó
-          FILE_PATH="k8s/env/dev/${{ matrix.service }}-values.yaml"
+          # 1. Lấy dữ liệu mới nhất từ remote về
+          git fetch origin dev
           
-          git add $FILE_PATH
-          git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }}"
+          # 2. Đưa các thay đổi mới vào local bằng cách rebase
+          # Rebase giúp đặt commit của bạn lên trên cùng của các commit mới nhất trên server
+          git rebase origin/dev
+          
+          # 3. Add và commit file manifest
+          git add k8s/env/dev/${{ matrix.service }}-values.yaml
+          git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }} [skip ci]"
+          
+          # 4. Push lại lên nhánh dev
           git push origin HEAD:dev
+          
