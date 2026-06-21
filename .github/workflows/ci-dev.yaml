@@ -65,17 +65,18 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           
-          # 1. Lấy dữ liệu mới nhất từ remote về
-          git fetch origin dev
+          # 1. Lưu tạm những thay đổi vào stash
+          git stash
           
-          # 2. Đưa các thay đổi mới vào local bằng cách rebase
-          # Rebase giúp đặt commit của bạn lên trên cùng của các commit mới nhất trên server
+          # 2. Cập nhật mới nhất từ server
+          git fetch origin dev
           git rebase origin/dev
           
-          # 3. Add và commit file manifest
+          # 3. Lấy lại những thay đổi từ stash
+          git stash pop
+          
+          # 4. Giờ thì có thể add, commit và push
           git add k8s/env/dev/${{ matrix.service }}-values.yaml
           git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }} [skip ci]"
-          
-          # 4. Push lại lên nhánh dev
           git push origin HEAD:dev
           
