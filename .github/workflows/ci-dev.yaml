@@ -7,13 +7,18 @@ on:
   pull_request:
     branches:
       - main
-      
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: write
+
+    strategy:
+      matrix:
+        service: [product]
+
     steps:
       - uses: actions/checkout@v4
 
