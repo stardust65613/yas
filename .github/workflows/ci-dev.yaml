@@ -60,6 +60,10 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add k8s/env/dev/product-values.yaml
-          git commit -m "Update image tag to ${{ github.sha }}"
-          git push
+          
+          # Sử dụng biến matrix để trỏ đúng file của service đó
+          FILE_PATH="k8s/env/dev/${{ matrix.service }}-values.yaml"
+          
+          git add $FILE_PATH
+          git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }}"
+          git push origin HEAD:dev
