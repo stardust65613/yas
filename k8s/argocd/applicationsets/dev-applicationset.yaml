@@ -143,7 +143,7 @@ spec:
       # -----------------------------------------------------------------------
       destination:
         #server: https://kubernetes.default.svc   # the local cluster
-        server: cloud-vm-cluster #cloud cluster
+        name: cloud-vm-cluster #cloud cluster
         namespace: dev
 
       # -----------------------------------------------------------------------
