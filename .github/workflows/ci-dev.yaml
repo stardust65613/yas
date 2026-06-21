@@ -30,10 +30,8 @@ jobs:
 
       - name: Build Java application
         run: |
-          cd common-library
           mvn clean install -DskipTests
 
-          cd ..
           cd ${{ matrix.service }}
           mvn clean package -DskipTests
 
