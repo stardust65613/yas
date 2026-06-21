@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - dev
   pull_request:
     branches:
       - main
+      - dev
 
 jobs:
   build-and-push:
@@ -65,22 +67,21 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           
-          # 1. Hủy bỏ mọi thay đổi cục bộ (xóa sạch rác trên Runner)
-          git reset --hard HEAD
-          
-          # 2. Cập nhật mới nhất từ server
           git fetch origin dev
-          
-          # 3. Chuyển sang nhánh dev và ép buộc nó khớp với server
           git checkout dev
           git reset --hard origin/dev
           
-          # 4. Thực hiện ghi giá trị mới vào file 
-          # (Thay chỗ này bằng lệnh sed hoặc echo của bạn)
-          # Ví dụ: sed -i "s|tag:.*|tag: ${{ github.sha }}|" k8s/env/dev/${{ matrix.service }}-values.yaml
+          # Thực hiện thay đổi file
+          # Giả sử bạn dùng lệnh này để update tag:
+          sed -i "s|tag:.*|tag: ${{ github.sha }}|" k8s/env/dev/${{ matrix.service }}-values.yaml
           
-          # 5. Commit và đẩy lên
-          git add k8s/env/dev/${{ matrix.service }}-values.yaml
-          git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }} [skip ci]"
-          git push origin HEAD:dev
+          # Kiểm tra xem file có thay đổi thật không
+          if git diff --quiet k8s/env/dev/${{ matrix.service }}-values.yaml; then
+            echo "Không có thay đổi nào trong file, bỏ qua bước commit."
+          else
+            git add k8s/env/dev/${{ matrix.service }}-values.yaml
+            git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }} [skip ci]"
+            git push origin HEAD:dev
+          fi
 
+ 
