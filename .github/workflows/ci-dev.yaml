@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        service: [product]
+        service: [product, media, backoffice-bff, storefront-bff, search, sampledata]
 
     steps:
       - uses: actions/checkout@v4
@@ -67,25 +67,37 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           
-          # 1. Đảm bảo workspace sạch sẽ trước khi làm việc
+          # 1. Clean mọi thay đổi chưa được commit để về trạng thái sạch 100%
           git reset --hard HEAD
           git clean -fd
           
-          # 2. Fetch và đảm bảo branch dev ở trạng thái mới nhất
+          # 2. Đảm bảo nhánh dev là mới nhất
           git fetch origin dev
           git checkout dev
           git reset --hard origin/dev
           
-          # 3. Thực hiện thay đổi file
-          sed -i "s|tag:.*|tag: ${{ github.sha }}|" k8s/env/dev/${{ matrix.service }}-values.yaml
-          
-          # 4. Kiểm tra và commit
-          if git diff --quiet k8s/env/dev/${{ matrix.service }}-values.yaml; then
-            echo "Không có thay đổi nào trong file, bỏ qua bước commit."
+          # 3. Sửa file
+          FILE_PATH="k8s/env/dev/${{ matrix.service }}-values.yaml"
+          if [ -f "$FILE_PATH" ]; then
+            sed -i "s|tag:.*|tag: ${{ github.sha }}|" "$FILE_PATH"
+            
+            # 4. Chỉ commit nếu file thực sự có thay đổi
+            if [ -n "$(git status --porcelain $FILE_PATH)" ]; then
+              git add "$FILE_PATH"
+              git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }} [skip ci]"
+              
+              # 5. Push với cơ chế thử lại nếu bị tranh chấp
+              until git push origin dev; do
+                echo "Push failed, pulling latest changes..."
+                git fetch origin dev
+                git reset --hard origin/dev
+                # Áp dụng lại thay đổi sau khi reset
+                sed -i "s|tag:.*|tag: ${{ github.sha }}|" "$FILE_PATH"
+                git add "$FILE_PATH"
+                git commit --amend --no-edit
+              done
+            fi
           else
-            git add k8s/env/dev/${{ matrix.service }}-values.yaml
-            git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }} [skip ci]"
-            git push origin dev  # Đẩy thẳng vào dev
+            echo "File $FILE_PATH không tồn tại, bỏ qua."
           fi
-
- 
+          

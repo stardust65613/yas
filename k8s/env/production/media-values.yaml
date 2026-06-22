@@ -1,24 +1,24 @@
 backend:
   image:
-    repository: ghcr.io/stardust65613/product
+    repository: ghcr.io/stardust65613/media
     tag: latest
 
-  nameOverride: product
-  fullnameOverride: product
-  databaseName: product
+  nameOverride: media
+  fullnameOverride: media
+  databaseName: media
   ingress:
     enabled: true
     host: api.yas.local
-    path: /product/
+    path: /media/
   extraVolumes:
-    - name: product-application-config
+    - name: media-application
       configMap:
-        name: product-application-configmap
+        name: media-application-configmap
   extraVolumeMounts:
-    - name: product-application-config
-      mountPath: /opt/yas/product
+    - name: media-application
+      mountPath: /opt/yas/media
   extraApplicationConfigPaths:
-    - /opt/yas/product/product-application.yaml  
+    - /opt/yas/media/media-application.yaml
 
   resources:
     requests:
