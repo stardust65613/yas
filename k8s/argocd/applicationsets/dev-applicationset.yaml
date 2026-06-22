@@ -59,6 +59,20 @@ spec:
           # - service: customer
           #   directory: k8s/charts/customer
           # ... (20 services total — see PLAN.md for full list)
+          - service: media
+            directory: k8s/charts/media
+
+          - service: storefront-bff
+            directory: k8s/charts/storefront-bff
+
+          - service: backoffice-bff
+            directory: k8s/charts/backoffice-bff
+
+          - service: sampledata 
+            directory: k8s/charts/sampledata
+
+          - service: search
+            directory: k8s/charts/search
 
   # --------------------------------------------------------------------------
   # TEMPLATE — This is the blueprint for every generated Application.
