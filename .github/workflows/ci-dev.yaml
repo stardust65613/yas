@@ -67,25 +67,32 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           
-          # 1. Đảm bảo workspace sạch sẽ trước khi làm việc
-          git reset --hard HEAD
-          git clean -fd
+          FILE_PATH="k8s/env/dev/${{ matrix.service }}-values.yaml"
           
-          # 2. Fetch và đảm bảo branch dev ở trạng thái mới nhất
-          git fetch origin dev
-          git checkout dev
-          git reset --hard origin/dev
+          # 1. Kiểm tra file tồn tại trước khi làm gì khác
+          if [ ! -f "$FILE_PATH" ]; then
+            echo "File $FILE_PATH không tồn tại, bỏ qua service này."
+            exit 0
+          fi
           
-          # 3. Thực hiện thay đổi file
-          sed -i "s|tag:.*|tag: ${{ github.sha }}|" k8s/env/dev/${{ matrix.service }}-values.yaml
+          # 2. Sử dụng git pull --rebase thay vì reset cứng để tránh xung đột
+          git pull origin dev --rebase
           
-          # 4. Kiểm tra và commit
-          if git diff --quiet k8s/env/dev/${{ matrix.service }}-values.yaml; then
-            echo "Không có thay đổi nào trong file, bỏ qua bước commit."
+          # 3. Sửa file
+          sed -i "s|tag:.*|tag: ${{ github.sha }}|" "$FILE_PATH"
+          
+          # 4. Commit và xử lý lỗi Push
+          if git diff --quiet "$FILE_PATH"; then
+            echo "Không có thay đổi."
           else
-            git add k8s/env/dev/${{ matrix.service }}-values.yaml
+            git add "$FILE_PATH"
             git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }} [skip ci]"
-            git push origin dev  # Đẩy thẳng vào dev
+            
+            # Dùng vòng lặp để thử lại nếu bị rejected (do có job khác vừa push)
+            until git push origin dev; do
+              echo "Push bị từ chối, đang pull lại để hợp nhất..."
+              git pull origin dev --rebase
+            done
           fi
 
  
