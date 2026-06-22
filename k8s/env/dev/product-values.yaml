@@ -21,7 +21,7 @@ backend:
   # IMAGE — Which Docker image to deploy.
   #   repository: Full path to the OCI image on GitHub Container Registry.
   #               Format is ghcr.io/<org>/<service-name>
-  #   tag: 8248e5468ca21800aba6d6a9cc8d06f8893fd50e
+  #   tag: c6065ab7040161df7fc068dcd17442ddd59f8d74
   #               most recent build. The CI pipeline will change this to
   #               "dev-<commit-sha>" for traceability.
   #   pullPolicy: Override from common (IfNotPresent → Always for dev)
@@ -29,7 +29,7 @@ backend:
   # --------------------------------------------------------------------------
   image:
     repository: ghcr.io/stardust65613/product
-    tag: 8248e5468ca21800aba6d6a9cc8d06f8893fd50e
+    tag: c6065ab7040161df7fc068dcd17442ddd59f8d74
     # NOTE: CI pipeline (ci-dev.yaml) will automatically replace "latest"
     # with "dev-<github.sha>" on every push to main. We keep "latest" as
     # the default so local devs can still do `helm install` manually.
