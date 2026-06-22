@@ -67,20 +67,26 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           
-          # 1. Tạo branch riêng cho job này để tránh đụng độ
-          BRANCH_NAME="update-${{ matrix.service }}-${{ github.run_id }}"
-          git checkout -b $BRANCH_NAME
+          # 1. Đảm bảo đã fetch đầy đủ các branch
+          git fetch origin dev
           
-          # 2. Thực hiện sửa file
+          # 2. Tạo branch tạm dựa trên dev mới nhất
+          BRANCH_NAME="update-${{ matrix.service }}-${{ github.run_id }}"
+          git checkout -b $BRANCH_NAME origin/dev
+          
+          # 3. Thực hiện thay đổi
           FILE_PATH="k8s/env/dev/${{ matrix.service }}-values.yaml"
           sed -i "s|tag:.*|tag: ${{ github.sha }}|" "$FILE_PATH"
           
-          # 3. Commit trên branch tạm
+          # 4. Commit
           git add "$FILE_PATH"
           git commit -m "Update image tag for ${{ matrix.service }} [skip ci]"
           
-          # 4. Merge vào dev và xóa branch tạm
+          # 5. Push branch tạm lên origin
+          git push origin $BRANCH_NAME
+          
+          # 6. Sử dụng GitHub CLI để tạo Pull Request (Khuyên dùng)
+          # Hoặc merge trực tiếp nếu bạn có quyền
           git checkout dev
-          git pull origin dev --rebase
-          git merge $BRANCH_NAME --no-ff
+          git merge $BRANCH_NAME
           git push origin dev
