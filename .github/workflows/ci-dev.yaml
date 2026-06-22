@@ -67,32 +67,20 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           
+          # 1. Tạo branch riêng cho job này để tránh đụng độ
+          BRANCH_NAME="update-${{ matrix.service }}-${{ github.run_id }}"
+          git checkout -b $BRANCH_NAME
+          
+          # 2. Thực hiện sửa file
           FILE_PATH="k8s/env/dev/${{ matrix.service }}-values.yaml"
-          
-          # 1. Kiểm tra file tồn tại trước khi làm gì khác
-          if [ ! -f "$FILE_PATH" ]; then
-            echo "File $FILE_PATH không tồn tại, bỏ qua service này."
-            exit 0
-          fi
-          
-          # 2. Sử dụng git pull --rebase thay vì reset cứng để tránh xung đột
-          git pull origin dev --rebase
-          
-          # 3. Sửa file
           sed -i "s|tag:.*|tag: ${{ github.sha }}|" "$FILE_PATH"
           
-          # 4. Commit và xử lý lỗi Push
-          if git diff --quiet "$FILE_PATH"; then
-            echo "Không có thay đổi."
-          else
-            git add "$FILE_PATH"
-            git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }} [skip ci]"
-            
-            # Dùng vòng lặp để thử lại nếu bị rejected (do có job khác vừa push)
-            until git push origin dev; do
-              echo "Push bị từ chối, đang pull lại để hợp nhất..."
-              git pull origin dev --rebase
-            done
-          fi
-
- 
+          # 3. Commit trên branch tạm
+          git add "$FILE_PATH"
+          git commit -m "Update image tag for ${{ matrix.service }} [skip ci]"
+          
+          # 4. Merge vào dev và xóa branch tạm
+          git checkout dev
+          git pull origin dev --rebase
+          git merge $BRANCH_NAME --no-ff
+          git push origin dev
