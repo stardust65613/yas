@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        service: [product]
+        service: [product, media, backoffice-bff, storefront-bff, search, sampledata]
 
     steps:
       - uses: actions/checkout@v4
