@@ -1,7 +1,7 @@
 backend: 
   image: 
     repository: ghcr.io/stardust65613/storefront-bff
-    tag: v1.0.0
+    tag: lasted
 
   nameOverride: storefront-bff
   fullnameOverride: storefront-bff

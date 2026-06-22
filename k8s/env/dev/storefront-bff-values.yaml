@@ -1,6 +1,7 @@
 backend: 
-  image: ghcr.io/stardust65613/storefront-bff
-  tag: v1.0.0
+  image: 
+    repository: ghcr.io/stardust65613/storefront-bff
+    tag: lasted
 
   nameOverride: storefront-bff
   fullnameOverride: storefront-bff
@@ -39,7 +40,7 @@ backend:
       mountPath: /opt/yas/gateway-routes-config
     - name: storefront-bff-extra-config
       mountPath: /opt/yas/extra-config
-      
+
   extraApplicationConfigPaths:
     - /opt/yas/gateway-routes-config/gateway-routes-config.yaml
     - /opt/yas/extra-config/storefront-bff-extra-config.yaml
